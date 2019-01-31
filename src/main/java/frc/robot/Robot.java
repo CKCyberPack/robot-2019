@@ -135,12 +135,38 @@ public class Robot extends TimedRobot {
       System.out.println("2 blocks found.");
 
       //get both blocks
-      //find center point on the picture (find center point ((x1 + x2)/2)
-      //if center < middle than go left ... 
+      Block blockLeft = foundBlocks.get(0);
+      Block blockRight = foundBlocks.get(0);
+      int xLeft = blockLeft.getX();
+      int xRight = blockRight.getX();
       
+  
+      //find center point on the picture (find center point ((x1 + x2)/2)
+      int blockMidX = (xLeft + xRight)/2;
+
+      //if center < middle than go left ... 
+      if(blockMidX <= RMap.pixyMidX){
+        // move right
+      }
+      else if (blockMidX >= RMap.pixyMidX) {
+        // move left
+      }
+      
+
+
       //width of 2 objects
-      //x2 - x1 absolute
+      int width = (xRight - xLeft);
+      int small = -100; //random value until we figure out what small is?
+      
       //if width is small drive forward otherwise hit target
+      if (width <= small)
+      {
+        //drive forward
+      }
+      else if (width >= small)
+      {
+        //drive backwards
+      }
       
       //find bigger object (w * h)
       //find if bigger object is left or right of smaller object

@@ -10,4 +10,7 @@ public class RMap {
     static int CANRightFrontMotor = 11;
     static int CANLeftBackMotor = 12;
     static int CANRightBackMotor = 13;
+
+    //vision
+    static int pixyMidX = 648;
 }
