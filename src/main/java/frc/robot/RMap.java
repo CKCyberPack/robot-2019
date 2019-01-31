@@ -3,11 +3,11 @@ package frc.robot;
 public class RMap {
 
     //Pixy
-    static int PixySPIPort = 4;
+    static int PixySPIPort = 4; //mxp SPI port on rio
 
     //Speed controllers
-    static int CANLeftFrontMotor = 1;
-    static int CANRightFrontMotor = 2;
-    static int CANLeftBackMotor = 3;
-    static int CANRightBackMotor = 4;
+    static int CANLeftFrontMotor = 10;
+    static int CANRightFrontMotor = 11;
+    static int CANLeftBackMotor = 12;
+    static int CANRightBackMotor = 13;
 }

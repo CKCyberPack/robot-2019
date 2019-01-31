@@ -7,12 +7,16 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import io.github.pseudoresonance.pixy2api.Pixy2;
+import io.github.pseudoresonance.pixy2api.Pixy2CCC;
+import io.github.pseudoresonance.pixy2api.Pixy2CCC.Block;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -105,7 +109,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testInit() {
-    System.out.println("test mode");
+    System.out.println("---Test mode---");
     ckPixy = Pixy2.createInstance(new io.github.pseudoresonance.pixy2api.links.SPILink());
     ckPixy.init(RMap.PixySPIPort);
 
@@ -117,6 +121,50 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
+    //System.out.print(ckPixy.getFPS());
+    //System.out.print("--");
+    
+    ckPixy.getCCC().getBlocks(true, Pixy2CCC.CCC_SIG1, 2);
+    
+    //System.out.println(ckPixy.getCCC().getBlocks());
+    
+
+    ArrayList<Block> foundBlocks = ckPixy.getCCC().getBlocks();
+    if (foundBlocks.size() == 2)
+    {
+      System.out.println("2 blocks found.");
+
+      //get both blocks
+      //find center point on the picture (find center point ((x1 + x2)/2)
+      //if center < middle than go left ... 
+      
+      //width of 2 objects
+      //x2 - x1 absolute
+      //if width is small drive forward otherwise hit target
+      
+      //find bigger object (w * h)
+      //find if bigger object is left or right of smaller object
+      //rotate robot to compensate
+
+
+      //drive mecanum: pass fwd, side to side, rotate
+    }
+    else if (foundBlocks.size() == 1)
+    {
+      //System.out.println("1 block found.");
+      Block block1 = foundBlocks.get(0);
+      System.out.println("X:" + block1.getX() + "Y:" + block1.getY());
+    }
+    else
+    {
+      System.out.println("Not 1 or 2 blocks.");
+    }
+    
+    
+    
+    
+    
+    
     //ckDrive.teleDriveCartesian(-ckController.getY(GenericHID.Hand.kRight),ckController.getX(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kLeft));
   }
 }
