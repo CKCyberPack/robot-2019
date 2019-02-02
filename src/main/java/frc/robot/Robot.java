@@ -140,38 +140,49 @@ public class Robot extends TimedRobot {
       int xLeft = blockLeft.getX();
       int xRight = blockRight.getX();
       
-  
       //find center point on the picture (find center point ((x1 + x2)/2)
       int blockMidX = (xLeft + xRight)/2;
 
-      //if center < middle than go left ... 
-      if(blockMidX <= RMap.pixyMidX){
-        // move right
-      }
-      else if (blockMidX >= RMap.pixyMidX) {
+      if((blockMidX <= RMap.pixelLeft) && (blockMidX <= RMap.pixelRight)){
         // move left
+        System.out.println("Drive left");
       }
-      
-
+      else if ((blockMidX >= RMap.pixelLeft) && (blockMidX >= RMap.pixelRight)) {
+        // move right
+        System.out.println("Drive right");
+      }
 
       //width of 2 objects
       int width = (xRight - xLeft);
-      int small = -100; //random value until we figure out what small is?
+      int small = 50; //random value until we figure out what small is?
       
       //if width is small drive forward otherwise hit target
-      if (width <= small)
-      {
+      if (width <= small){
         //drive forward
+        System.out.println("Drive forwards");
       }
-      else if (width >= small)
-      {
+      else if (width >= small){
         //drive backwards
+        System.out.println("Drive backwards");
       }
       
       //find bigger object (w * h)
-      //find if bigger object is left or right of smaller object
-      //rotate robot to compensate
+      int widthLeft = blockLeft.getWidth();
+      int heightLeft = blockLeft.getHeight();
+      int areaLeft = widthLeft * heightLeft;
 
+      int widthRight = blockRight.getWidth();
+      int heightRight = blockRight.getHeight();
+      int areaRight = widthRight * heightRight;
+
+      if (areaLeft < areaRight) {
+        //turn right (drive right side faster than left side)
+        System.out.println("Turn right");
+      }
+      if (areaRight < areaLeft) {
+        //turn left (drive left side faster than right side)
+        System.out.println("Turn left");
+      }
 
       //drive mecanum: pass fwd, side to side, rotate
     }
@@ -187,10 +198,7 @@ public class Robot extends TimedRobot {
     }
     
     
-    
-    
-    
-    
+  
     //ckDrive.teleDriveCartesian(-ckController.getY(GenericHID.Hand.kRight),ckController.getX(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kLeft));
   }
 }
