@@ -9,14 +9,18 @@ package frc.robot;
 
 import java.util.ArrayList;
 
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.SPI;
 import io.github.pseudoresonance.pixy2api.Pixy2;
 import io.github.pseudoresonance.pixy2api.Pixy2CCC;
 import io.github.pseudoresonance.pixy2api.Pixy2CCC.Block;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -102,8 +106,17 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
+    /*if(ckController.getBButtonPressed()){
 
-  
+    }
+
+    if(ckController.getAButtonPressed()){
+
+    }
+
+    if(ckController.getTriggerAxis(GenericHID.Hand.kRight) == ){
+
+    }*/
   }
 
    /**
@@ -143,16 +156,24 @@ public class Robot extends TimedRobot {
       int xRight = blockRight.getX();
       
       //find center point on the picture (find center point ((x1 + x2)/2)
-      int blockMidX = (xLeft + xRight)/2;
 
-      if((blockMidX <= RMap.pixelLeft) && (blockMidX <= RMap.pixelRight)){
-        // move left
-        System.out.println("Drive left");
+
+      int blockMidX = (xLeft + xRight)/2;
+      System.out.println (blockMidX);
+
+      if ((blockMidX >= 180) && (blockMidX <= 241)) {
+        //your colse enough (reduce glitch)
+        System.out.println("Do nothing.");
       }
       else if ((blockMidX >= RMap.pixelLeft) && (blockMidX >= RMap.pixelRight)) {
         // move right
         System.out.println("Drive right");
       }
+      else if((blockMidX <= RMap.pixelLeft) && (blockMidX <= RMap.pixelRight)){
+        // move left
+        System.out.println("Drive left");
+      }
+      
 
       //width of 2 objects
       int width = (xRight - xLeft);
@@ -198,7 +219,6 @@ public class Robot extends TimedRobot {
     {
       System.out.println("Not 1 or 2 blocks.");
     }
-    
     
   
     //ckDrive.teleDriveCartesian(-ckController.getY(GenericHID.Hand.kRight),ckController.getX(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kLeft));
