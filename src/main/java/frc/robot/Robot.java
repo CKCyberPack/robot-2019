@@ -14,12 +14,15 @@ import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.SPI;
+// import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import io.github.pseudoresonance.pixy2api.Pixy2;
 import io.github.pseudoresonance.pixy2api.Pixy2CCC;
 import io.github.pseudoresonance.pixy2api.Pixy2CCC.Block;
+import frc.robot.HatchArm.ArmPosition;
+import frc.robot.HatchArm.FingerPosition;
+import frc.robot.Ramp.RampPosition;
+
 
 
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -33,10 +36,10 @@ import edu.wpi.first.wpilibj.command.Scheduler;
  * project.
  */
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  // private static final String kDefaultAuto = "Default";
+  // private static final String kCustomAuto = "My Auto";
+  // private String m_autoSelected;
+  // private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   private Pixy2 ckPixy;
 
@@ -44,6 +47,9 @@ public class Robot extends TimedRobot {
   private XboxController ckController;
   private PowerDistributionPanel ckPDP;
   private DriveTrain ckDrive;
+  private BallShooter ckBall;
+  private HatchArm ckArm;
+  private Ramp ckRamp;
 
   //Variables
   private int driveRobot = 0;
@@ -54,12 +60,15 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
+   /* m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
+    SmartDashboard.putData("Auto choices", m_chooser);*/
 
     ckController = new XboxController(0);
     ckDrive = new DriveTrain();
+    ckBall = new BallShooter();
+    ckArm = new HatchArm();
+    ckRamp = new Ramp();
   }
 
   /**
@@ -89,9 +98,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
+    System.out.println("---Auto mode---");
+    //m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
+    //System.out.println("Auto selected: " + m_autoSelected);
   }
 
   /**
@@ -99,16 +109,25 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-    case kCustomAuto:
-      // Put custom auto code here
-      break;
-    case kDefaultAuto:
-    default:
-      // Put default auto code here
-      break;
-    }
+    // switch (m_autoSelected) {
+    // case kCustomAuto:
+    //   // Put custom auto code here
+    //   break;
+    // case kDefaultAuto:
+    // default:
+    //   // Put default auto code here
+    //   break;
+    // }
   }
+
+@Override
+public void teleopInit() {
+  System.out.println("---Teleop mode---");
+
+  //Arm Turn Out
+  ckArm.fireArm(ArmPosition.Out);
+
+}
 
   /**
    * This function is called periodically during operator control.
@@ -119,6 +138,37 @@ public class Robot extends TimedRobot {
     /**
    * This function is called once entering test mode.
    */
+  
+   //Trigger Ramp Variable Speed both trigger
+   //Right trigger is positive therefore in, left trigger is negative therefore reverse
+   ckBall.setSpeed(ckController.getTriggerAxis(Hand.kRight) - ckController.getTriggerAxis(Hand.kLeft));
+
+   //Right Bumper Toggle Arm up/down and rumble down
+   if (ckController.getBumperPressed(Hand.kRight)){
+     ckArm.toggleArm(ckController);
+   }
+
+   //B Hold Fingers Out
+   if (ckController.getBButton()){
+     ckArm.fireFinger(FingerPosition.Out);
+   }
+   else{
+     ckArm.fireFinger(FingerPosition.In);
+   }
+
+   //RAMP SUPER SAFE, START+SELECT
+   if (ckController.getBackButton() && ckController.getStartButton()){
+    ckArm.fireArm(ArmPosition.Out); //make sure arm can go down (turn it)
+    ckArm.fireArm(ArmPosition.Down); //make sure arm is out of the way
+    ckRamp.LaunchRamp(RampPosition.Down);
+   }
+
+
+
+
+
+
+
 
     ckDrive.teleDriveCartesian(-ckController.getY(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kLeft));
   }
@@ -163,54 +213,52 @@ public class Robot extends TimedRobot {
         blockTemp = null;
       }
 
+      //get top x-coordinate of the block
       int xLeft = blockLeft.getX();
       int xRight = blockRight.getX();
 
-      int blockMidX = (xLeft + xRight)/2;
-      System.out.println (blockMidX);
+      int blockXMid = (xLeft + xRight)/2; //midpoint x-coordinates
 
-      if ((blockMidX >= (RMap.cameraXMid - RMap.cameraXDeadZone)) && (blockMidX <= (RMap.cameraXMid + RMap.cameraXDeadZone))) {
+      if ((blockXMid >= (RMap.cameraXMid - RMap.cameraXDeadZone)) && (blockXMid <= (RMap.cameraXMid + RMap.cameraXDeadZone))) {
         //your close enough (reduce glitch)
         System.out.println("Strafe 0");
       }
-      else if (blockMidX >= (RMap.cameraXMid + RMap.cameraXDeadZone)) {
+      else if (blockXMid >= (RMap.cameraXMid + RMap.cameraXDeadZone)) {
         // move right
         System.out.println("Strafe right");
       }
-      else if(blockMidX <= (RMap.cameraXMid - RMap.cameraXDeadZone)){
+      else if(blockXMid <= (RMap.cameraXMid - RMap.cameraXDeadZone)){
         // move left
         System.out.println("Strafe left");
       }
       
 
       //width of 2 objects
-      int width = (xRight - xLeft);
-      int small = 50; //random value until we figure out what small is?
+      int blockWidth = (xRight - xLeft);
       
-      //if width is small drive forward otherwise hit target
-      if (width <= small){
-        //drive forward
+      if (blockWidth <= RMap.cameraBlockWidth){
+        //drive forward (blocks have a small width)
         System.out.println("Drive forwards");
       }
-      else if (width >= small){
+      else if (blockWidth >= RMap.cameraBlockWidth){
         //you are getting very close now
         System.out.println("Drive slowly");
       }
       
       //find bigger object (w * h)
-      int areaLeft = blockLeft.getWidth() * blockLeft.getHeight();
-      int areaRight = blockRight.getWidth() * blockRight.getHeight();
+      int areaBlockLeft = blockLeft.getWidth() * blockLeft.getHeight();
+      int areaBlockRight = blockRight.getWidth() * blockRight.getHeight();
 
-      if (areaLeft < areaRight) {
+      if (areaBlockLeft < areaBlockRight) {
         //turn left (drive left side faster than right side)
         System.out.println("Rotate left");
       }
-      if (areaRight < areaLeft) {
+      if (areaBlockRight < areaBlockLeft) {
         //turn right (drive right side faster than left side)
         System.out.println("Rotate right");
       }
 
-      //drive mecanum: pass fwd, side to side, rotate
+      //drive mecanum: pass fwd, strafe, rotate
     }
     else if (foundBlocks.size() == 1)
     {
