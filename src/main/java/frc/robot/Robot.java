@@ -22,6 +22,9 @@ import io.github.pseudoresonance.pixy2api.Pixy2CCC;
 import io.github.pseudoresonance.pixy2api.Pixy2CCC.Block;
 
 
+import edu.wpi.first.wpilibj.command.Scheduler;
+
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -42,6 +45,9 @@ public class Robot extends TimedRobot {
   private PowerDistributionPanel ckPDP;
   private DriveTrain ckDrive;
 
+  //Variables
+  private int driveRobot = 0;
+
   /**
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
@@ -51,6 +57,9 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+    ckController = new XboxController(0);
+    ckDrive = new DriveTrain();
   }
 
   /**
@@ -106,22 +115,15 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    /*if(ckController.getBButtonPressed()){
-
-    }
-
-    if(ckController.getAButtonPressed()){
-
-    }
-
-    if(ckController.getTriggerAxis(GenericHID.Hand.kRight) == ){
-
-    }*/
-  }
-
-   /**
+    
+    /**
    * This function is called once entering test mode.
    */
+
+    ckDrive.teleDriveCartesian(-ckController.getY(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kLeft));
+  }
+
+
   @Override
   public void testInit() {
     System.out.println("---Test mode---");
@@ -150,28 +152,34 @@ public class Robot extends TimedRobot {
       System.out.println("2 blocks found.");
 
       //get both blocks
-      Block blockLeft = foundBlocks.get(0);
-      Block blockRight = foundBlocks.get(0);
+      Block blockLeft = foundBlocks.get(0); //first block found
+      Block blockRight = foundBlocks.get(1); //second block found
+      
+      //SWAP IF NEEDED
+      if (blockLeft.getX() > blockRight.getX()) {
+        Block blockTemp = blockLeft;
+        blockLeft = blockRight;
+        blockRight = blockTemp;
+        blockTemp = null;
+      }
+
       int xLeft = blockLeft.getX();
       int xRight = blockRight.getX();
-      
-      //find center point on the picture (find center point ((x1 + x2)/2)
-
 
       int blockMidX = (xLeft + xRight)/2;
       System.out.println (blockMidX);
 
-      if ((blockMidX >= 180) && (blockMidX <= 241)) {
-        //your colse enough (reduce glitch)
-        System.out.println("Do nothing.");
+      if ((blockMidX >= (RMap.cameraXMid - RMap.cameraXDeadZone)) && (blockMidX <= (RMap.cameraXMid + RMap.cameraXDeadZone))) {
+        //your close enough (reduce glitch)
+        System.out.println("Strafe 0");
       }
-      else if ((blockMidX >= RMap.pixelLeft) && (blockMidX >= RMap.pixelRight)) {
+      else if (blockMidX >= (RMap.cameraXMid + RMap.cameraXDeadZone)) {
         // move right
-        System.out.println("Drive right");
+        System.out.println("Strafe right");
       }
-      else if((blockMidX <= RMap.pixelLeft) && (blockMidX <= RMap.pixelRight)){
+      else if(blockMidX <= (RMap.cameraXMid - RMap.cameraXDeadZone)){
         // move left
-        System.out.println("Drive left");
+        System.out.println("Strafe left");
       }
       
 
@@ -185,26 +193,21 @@ public class Robot extends TimedRobot {
         System.out.println("Drive forwards");
       }
       else if (width >= small){
-        //drive backwards
-        System.out.println("Drive backwards");
+        //you are getting very close now
+        System.out.println("Drive slowly");
       }
       
       //find bigger object (w * h)
-      int widthLeft = blockLeft.getWidth();
-      int heightLeft = blockLeft.getHeight();
-      int areaLeft = widthLeft * heightLeft;
-
-      int widthRight = blockRight.getWidth();
-      int heightRight = blockRight.getHeight();
-      int areaRight = widthRight * heightRight;
+      int areaLeft = blockLeft.getWidth() * blockLeft.getHeight();
+      int areaRight = blockRight.getWidth() * blockRight.getHeight();
 
       if (areaLeft < areaRight) {
-        //turn right (drive right side faster than left side)
-        System.out.println("Turn right");
+        //turn left (drive left side faster than right side)
+        System.out.println("Rotate left");
       }
       if (areaRight < areaLeft) {
-        //turn left (drive left side faster than right side)
-        System.out.println("Turn left");
+        //turn right (drive right side faster than left side)
+        System.out.println("Rotate right");
       }
 
       //drive mecanum: pass fwd, side to side, rotate
@@ -214,12 +217,12 @@ public class Robot extends TimedRobot {
       //System.out.println("1 block found.");
       Block block1 = foundBlocks.get(0);
       System.out.println("X:" + block1.getX() + "Y:" + block1.getY());
+     
     }
     else
     {
       System.out.println("Not 1 or 2 blocks.");
     }
-    
   
     //ckDrive.teleDriveCartesian(-ckController.getY(GenericHID.Hand.kRight),ckController.getX(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kLeft));
   }

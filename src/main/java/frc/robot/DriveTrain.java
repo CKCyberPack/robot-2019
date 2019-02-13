@@ -14,7 +14,7 @@ public class DriveTrain {
     CANSparkMax rightBackMotor;
     MecanumDrive ckDrive;
 
-    private DriveTrain (){  //so no duplicate subsystem is created.
+    public DriveTrain (){  
         leftFrontMotor = new CANSparkMax(RMap.CANLeftFrontMotor, CANSparkMaxLowLevel.MotorType.kBrushless);
         rightFrontMotor = new CANSparkMax(RMap.CANRightFrontMotor, CANSparkMaxLowLevel.MotorType.kBrushless);
         leftBackMotor = new CANSparkMax(RMap.CANLeftBackMotor, CANSparkMaxLowLevel.MotorType.kBrushless);
@@ -23,7 +23,8 @@ public class DriveTrain {
         ckDrive = new MecanumDrive(leftFrontMotor, rightFrontMotor, leftBackMotor, rightBackMotor);
     }
 
+
     public void teleDriveCartesian (double forward, double rotation, double strafe){
-        //ckDrive.driveCartesian(forward, rotation, strafe, 0);
+        ckDrive.driveCartesian(forward, rotation, strafe, 0);
     }
 }

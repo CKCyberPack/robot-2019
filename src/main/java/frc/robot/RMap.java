@@ -3,21 +3,21 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 public class RMap {
-
+    
     //Pixy
     static int PixySPIPort = 4; //mxp SPI port on rio
 
     //Speed controllers
-    static int CANLeftFrontMotor = 10;
+    static int CANLeftFrontMotor = 12;
     static int CANRightFrontMotor = 11;
-    static int CANLeftBackMotor = 12;
-    static int CANRightBackMotor = 13;
+    static int CANLeftBackMotor = 13;
+    static int CANRightBackMotor = 10;
 
-    //vision
-    static int pixelLeft = 210; //left x middle pixel
-    static int pixelRight = 211; //right x middle pixel 
+    //Vision
+    static int cameraXMid = 210; //midpoint of camera 
+    static int cameraXDeadZone = 30;
 
-    //ballShooter
+    //BallShooter
     static int conveyor = 1;
 
     //Hatch Arm
