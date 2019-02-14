@@ -7,11 +7,12 @@ public class RMap {
     //Pixy
     static int PixySPIPort = 4; //mxp SPI port on rio
 
-    //Speed controllers
+    //Drive Train
     static int CANLeftFrontMotor = 12;
     static int CANRightFrontMotor = 11;
     static int CANLeftBackMotor = 13;
     static int CANRightBackMotor = 10;
+    static double driveTrainDeadzone = 0.05;
 
     //Vision
     static int cameraXMid = 210; //midpoint of camera 

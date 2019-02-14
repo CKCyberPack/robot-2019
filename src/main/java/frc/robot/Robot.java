@@ -66,6 +66,7 @@ public class Robot extends TimedRobot {
 
     ckController = new XboxController(0);
     ckDrive = new DriveTrain();
+    ckPDP = new PowerDistributionPanel();
     ckBall = new BallShooter();
     ckArm = new HatchArm();
     ckRamp = new Ramp();
@@ -271,7 +272,6 @@ public void teleopInit() {
     {
       System.out.println("Not 1 or 2 blocks.");
     }
-  
-    //ckDrive.teleDriveCartesian(-ckController.getY(GenericHID.Hand.kRight),ckController.getX(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kLeft));
+
   }
 }
