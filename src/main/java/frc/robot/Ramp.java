@@ -13,7 +13,7 @@ public class Ramp{
     public Ramp(){
         rampPiston = new DoubleSolenoid(RMap.pcmRampUp, RMap.pcmRampDown);
     }
-    public void LaunchRamp(RampPosition pos){
+    public void launchRamp(RampPosition pos){
         switch(pos){
             case Up:
                 rampPiston.set(RMap.pcmForward);

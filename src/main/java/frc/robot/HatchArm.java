@@ -1,13 +1,14 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
 public class HatchArm{
 
     private DoubleSolenoid armPiston;
-    private DoubleSolenoid armPistonTurn;
+    private Solenoid armPistonTurn;
     private DoubleSolenoid armPistonFinger;
     private ArmPosition currentArmPosition;
 
@@ -23,7 +24,7 @@ public class HatchArm{
     }
     public HatchArm(){
         armPiston = new DoubleSolenoid(RMap.pcmArmUp, RMap.pcmArmDown);
-        armPistonTurn = new DoubleSolenoid(RMap.pcmArmTurnIn, RMap.pcmArmTurnOut);
+        armPistonTurn = new Solenoid(RMap.pcmArmTurnIn, RMap.pcmArmTurnOut);
         armPistonFinger = new DoubleSolenoid(RMap.pcmArmFingersIn, RMap.pcmArmFingersOut);
     }
     public void fireArm(ArmPosition pos){
@@ -37,10 +38,10 @@ public class HatchArm{
                 currentArmPosition = pos;
                 break;
             case In:
-                armPistonTurn.set(RMap.pcmForward);
+                armPistonTurn.set(true); //TODO: change later depending on piston's position for on/off.
                 break;
             case Out:
-                armPistonTurn.set(RMap.pcmReverse);
+                armPistonTurn.set(false);
                 break;
         }
     }
@@ -62,6 +63,15 @@ public class HatchArm{
         else{
             fireArm(ArmPosition.Up);
             myController.setRumble(RumbleType.kRightRumble, 0); //turns rumble off
+        }
+    }
+
+    public void toggleArmTurn(XboxController myController){
+        if (currentArmPosition == ArmPosition.In){
+            fireArm(ArmPosition.Out);
+        }
+        else{
+            fireArm(ArmPosition.In);
         }
     }
 

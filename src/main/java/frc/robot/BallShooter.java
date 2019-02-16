@@ -8,7 +8,6 @@ public class BallShooter {
 
     public BallShooter() {
         conveyVictorSPX = new VictorSPX (RMap.CANConveyor);
-        
     }
 
     public void setSpeed(double speed) {

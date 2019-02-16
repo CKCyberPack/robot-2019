@@ -18,6 +18,12 @@ public class RMap {
     static int cameraXMid = 210; //midpoint of camera 
     static int cameraXDeadZone = 30;
     static int cameraBlockWidth = 10; //width of block
+    static double cameraDriveForward = 0.05;
+    static double cameraDriveReverse = -0.05;
+    static double cameraDriveStrafeRight = 0.05;
+    static double cameraDriveStarfeLeft = -0.05;
+    static double cameraDriveTurnRight = 0.05;
+    static double cameraDriveTurnLeft = -0.05;
 
     //BallShooter
     static int CANConveyor = 20;

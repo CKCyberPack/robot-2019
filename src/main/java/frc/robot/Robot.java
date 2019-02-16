@@ -8,7 +8,6 @@
 package frc.robot;
 
 import java.util.ArrayList;
-
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -22,10 +21,6 @@ import io.github.pseudoresonance.pixy2api.Pixy2CCC.Block;
 import frc.robot.HatchArm.ArmPosition;
 import frc.robot.HatchArm.FingerPosition;
 import frc.robot.Ramp.RampPosition;
-
-
-
-import edu.wpi.first.wpilibj.command.Scheduler;
 
 
 /**
@@ -51,8 +46,6 @@ public class Robot extends TimedRobot {
   private HatchArm ckArm;
   private Ramp ckRamp;
 
-  //Variables
-  private int driveRobot = 0;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -121,25 +114,28 @@ public class Robot extends TimedRobot {
     // }
   }
 
+  /**
+  * This function is called once entering test mode.
+  */
 @Override
 public void teleopInit() {
   System.out.println("---Teleop mode---");
 
+  //TODO - Move this to robot init?
   //Arm Turn Out
   ckArm.fireArm(ArmPosition.Out);
-
+  //Hold Ramp Up
+  ckRamp.launchRamp(RampPosition.Up);
+  // Start Arm UP
+  ckArm.fireArm(ArmPosition.Up);
 }
 
-  /**
+    /**
    * This function is called periodically during operator control.
    */
   @Override
   public void teleopPeriodic() {
-    
-    /**
-   * This function is called once entering test mode.
-   */
-  
+
    //Trigger Ramp Variable Speed both trigger
    //Right trigger is positive therefore in, left trigger is negative therefore reverse
    ckBall.setSpeed(ckController.getTriggerAxis(Hand.kRight) - ckController.getTriggerAxis(Hand.kLeft));
@@ -148,6 +144,11 @@ public void teleopInit() {
    if (ckController.getBumperPressed(Hand.kRight)){
      ckArm.toggleArm(ckController);
    }
+
+   //Left Bumper Toggle Arm turn in/out
+   if (ckController.getBumperPressed(Hand.kLeft)){
+    ckArm.toggleArmTurn(ckController);
+  }
 
    //B Hold Fingers Out
    if (ckController.getBButton()){
@@ -161,16 +162,10 @@ public void teleopInit() {
    if (ckController.getBackButton() && ckController.getStartButton()){
     ckArm.fireArm(ArmPosition.Out); //make sure arm can go down (turn it)
     ckArm.fireArm(ArmPosition.Down); //make sure arm is out of the way
-    ckRamp.LaunchRamp(RampPosition.Down);
+    ckRamp.launchRamp(RampPosition.Down);
    }
 
-
-
-
-
-
-
-
+    //Drive train             (forward, rotation, strafe)
     ckDrive.teleDriveCartesian(-ckController.getY(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kLeft));
   }
 
@@ -195,7 +190,6 @@ public void teleopInit() {
     ckPixy.getCCC().getBlocks(true, Pixy2CCC.CCC_SIG1, 2);
     
     //System.out.println(ckPixy.getCCC().getBlocks());
-    
 
     ArrayList<Block> foundBlocks = ckPixy.getCCC().getBlocks();
     if (foundBlocks.size() == 2)
@@ -222,28 +216,33 @@ public void teleopInit() {
 
       if ((blockXMid >= (RMap.cameraXMid - RMap.cameraXDeadZone)) && (blockXMid <= (RMap.cameraXMid + RMap.cameraXDeadZone))) {
         //your close enough (reduce glitch)
-        System.out.println("Strafe 0");
+        System.out.println("Strafe 0"); //based on pixy cam mounting location, actually driving forward/reverse.
+        ckDrive.teleDriveCartesian(0, 0, 0); 
       }
       else if (blockXMid >= (RMap.cameraXMid + RMap.cameraXDeadZone)) {
         // move right
         System.out.println("Strafe right");
+        ckDrive.teleDriveCartesian(RMap.cameraDriveReverse, 0, 0); //drive reverse
       }
       else if(blockXMid <= (RMap.cameraXMid - RMap.cameraXDeadZone)){
         // move left
         System.out.println("Strafe left");
+        ckDrive.teleDriveCartesian(RMap.cameraDriveForward, 0, 0); //drive forward
+
       }
       
-
       //width of 2 objects
       int blockWidth = (xRight - xLeft);
-      
+
       if (blockWidth <= RMap.cameraBlockWidth){
-        //drive forward (blocks have a small width)
-        System.out.println("Drive forwards");
+        //drive forward (blocks have a small width) 
+        System.out.println("Drive forwards"); //based on pixy cam mounting location, actually driving forward/reverse.
+        ckDrive.teleDriveCartesian(0, 0, RMap.cameraDriveStarfeLeft); //strafe left
       }
       else if (blockWidth >= RMap.cameraBlockWidth){
         //you are getting very close now
         System.out.println("Drive slowly");
+        ckDrive.teleDriveCartesian(0, 0, RMap.cameraDriveStrafeRight); //starfe right
       }
       
       //find bigger object (w * h)
@@ -253,10 +252,12 @@ public void teleopInit() {
       if (areaBlockLeft < areaBlockRight) {
         //turn left (drive left side faster than right side)
         System.out.println("Rotate left");
+        ckDrive.teleDriveCartesian(0, RMap.cameraDriveTurnLeft, 0); //rotate left
       }
       if (areaBlockRight < areaBlockLeft) {
         //turn right (drive right side faster than left side)
         System.out.println("Rotate right");
+        ckDrive.teleDriveCartesian(0, RMap.cameraDriveTurnRight, 0); //rotate right
       }
 
       //drive mecanum: pass fwd, strafe, rotate
@@ -266,7 +267,6 @@ public void teleopInit() {
       //System.out.println("1 block found.");
       Block block1 = foundBlocks.get(0);
       System.out.println("X:" + block1.getX() + "Y:" + block1.getY());
-     
     }
     else
     {
