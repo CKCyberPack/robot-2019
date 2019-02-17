@@ -67,11 +67,11 @@ public class HatchArm{
     }
 
     public void toggleArmTurn(XboxController myController){
-        if (currentArmPosition == ArmPosition.In){
-            fireArm(ArmPosition.Out);
+        if (currentArmPosition == ArmPosition.Out){
+            fireArm(ArmPosition.In);
         }
         else{
-            fireArm(ArmPosition.In);
+            fireArm(ArmPosition.Out);
         }
     }
 

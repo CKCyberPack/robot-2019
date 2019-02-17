@@ -22,6 +22,7 @@ import frc.robot.HatchArm.ArmPosition;
 import frc.robot.HatchArm.FingerPosition;
 import frc.robot.Platform.PlatformPosition;
 import java.util.Timer;
+import edu.wpi.first.wpilibj.*;
 
 
 /**
@@ -46,6 +47,7 @@ public class Robot extends TimedRobot {
   private BallShooter ckBall;
   private HatchArm ckArm;
   private Platform ckPlatform;
+  private Compressor ckCompressor;
 
 
   private long startTimer;
@@ -70,6 +72,7 @@ public class Robot extends TimedRobot {
     ckBall = new BallShooter();
     ckArm = new HatchArm();
     ckPlatform = new Platform();
+    ckCompressor = new Compressor();
 
     //vision
     ckPixy = Pixy2.createInstance(new io.github.pseudoresonance.pixy2api.links.SPILink());
@@ -139,10 +142,10 @@ public class Robot extends TimedRobot {
         case 1:
         default:
             ckDrive.teleDriveCartesian(0, 0, 0);
+            cameraHatchDetector();
             break;
     }
 }
-
 
   /**
   * This function is called once entering test mode.
@@ -173,7 +176,7 @@ public void teleopInit() {
 
    //Trigger Ramp Variable Speed both trigger
    //Right trigger is positive therefore in, left trigger is negative therefore reverse
-   ckBall.setSpeed(ckController.getTriggerAxis(Hand.kRight) - ckController.getTriggerAxis(Hand.kLeft));
+   ckBall.setSpeed(ckController.getTriggerAxis(Hand.kLeft) - ckController.getTriggerAxis(Hand.kRight));
 
    //Right Bumper Toggle Arm up/down and rumble down
    if (ckController.getBumperPressed(Hand.kRight)){
@@ -181,9 +184,9 @@ public void teleopInit() {
    }
 
    //Left Bumper Toggle Arm turn in/out
-   if (ckController.getBumperPressed(Hand.kLeft)){
-    ckArm.toggleArmTurn(ckController);
-  }
+   //if (ckController.getBumperPressed(Hand.kLeft)){
+    //ckArm.toggleArmTurn(ckController);
+  //}
 
    //B Hold Fingers Out
    if (ckController.getBButton()){
@@ -193,8 +196,16 @@ public void teleopInit() {
      ckArm.fireFinger(FingerPosition.In);
    }
 
+   //X turn arm
+   if (ckController.getXButton()) {
+     ckArm.fireArm(ArmPosition.Out);
+   }
+   else{
+    ckArm.fireArm(ArmPosition.In);
+  }
+
    //RAMP SUPER SAFE, START+SELECT
-   if (ckController.getBackButton() && ckController.getStartButton()){
+   if (ckController.getBackButton() && ckController.getStartButton()){ 
     ckArm.fireArm(ArmPosition.Out); //make sure arm can go down (turn it)
     ckArm.fireArm(ArmPosition.Down); //make sure arm is out of the way
     ckPlatform.launchPlatform(PlatformPosition.Down);
@@ -205,7 +216,7 @@ public void teleopInit() {
 
     //PixyCam sub-routine
     if (ckController.getAButton()){
-      cameraHatchDetector();
+      //cameraHatchDetector();
     }
   }
   

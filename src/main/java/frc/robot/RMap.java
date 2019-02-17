@@ -33,8 +33,8 @@ public class RMap {
     //Hatch Arm
     static DoubleSolenoid.Value pcmForward = DoubleSolenoid.Value.kForward;
     static DoubleSolenoid.Value pcmReverse = DoubleSolenoid.Value.kReverse;
-    static int pcmArmUp = 2; 
-    static int pcmArmDown = 3;
+    static int pcmArmUp = 3; 
+    static int pcmArmDown = 2;
     static int pcmArmTurn = 7;
     //static int pcmArmTurnOut = 7;
     static int pcmArmFingersIn = 1;
