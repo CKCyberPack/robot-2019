@@ -20,7 +20,8 @@ import io.github.pseudoresonance.pixy2api.Pixy2CCC;
 import io.github.pseudoresonance.pixy2api.Pixy2CCC.Block;
 import frc.robot.HatchArm.ArmPosition;
 import frc.robot.HatchArm.FingerPosition;
-import frc.robot.Ramp.RampPosition;
+import frc.robot.Platform.PlatformPosition;
+import java.util.Timer;
 
 
 /**
@@ -44,7 +45,13 @@ public class Robot extends TimedRobot {
   private DriveTrain ckDrive;
   private BallShooter ckBall;
   private HatchArm ckArm;
-  private Ramp ckRamp;
+  private Platform ckPlatform;
+
+
+  private long startTimer;
+  private long currentTimer;
+  // private Timer autoTimer;
+  private int autoCase;
 
 
   /**
@@ -62,7 +69,12 @@ public class Robot extends TimedRobot {
     ckPDP = new PowerDistributionPanel();
     ckBall = new BallShooter();
     ckArm = new HatchArm();
-    ckRamp = new Ramp();
+    ckPlatform = new Platform();
+
+    //vision
+    ckPixy = Pixy2.createInstance(new io.github.pseudoresonance.pixy2api.links.SPILink());
+    ckPixy.init(RMap.PixySPIPort);
+    //System.out.println(ckPixy.getVersionInfo());
   }
 
   /**
@@ -96,6 +108,10 @@ public class Robot extends TimedRobot {
     //m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     //System.out.println("Auto selected: " + m_autoSelected);
+
+    // autoTimer = new Timer();
+    startTimer = System.currentTimeMillis();
+    autoCase = 0;
   }
 
   /**
@@ -103,6 +119,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
+    currentTimer = System.currentTimeMillis();
     // switch (m_autoSelected) {
     // case kCustomAuto:
     //   // Put custom auto code here
@@ -112,7 +129,20 @@ public class Robot extends TimedRobot {
     //   // Put default auto code here
     //   break;
     // }
-  }
+
+    switch (autoCase)
+    {
+        case 0:
+            ckDrive.teleDriveCartesian(0.5, 0, 0); //drive straight forward at 50%
+            if ((currentTimer - startTimer) > 3000) {autoCase++;} //once time has passed move on
+            break;
+        case 1:
+        default:
+            ckDrive.teleDriveCartesian(0, 0, 0);
+            break;
+    }
+}
+
 
   /**
   * This function is called once entering test mode.
@@ -122,19 +152,24 @@ public void teleopInit() {
   System.out.println("---Teleop mode---");
 
   //TODO - Move this to robot init?
-  //Arm Turn Out
-  ckArm.fireArm(ArmPosition.Out);
+  //Arm Turn In
+  ckArm.fireArm(ArmPosition.In);
   //Hold Ramp Up
-  ckRamp.launchRamp(RampPosition.Up);
+  ckPlatform.launchPlatform(PlatformPosition.Up);
   // Start Arm UP
   ckArm.fireArm(ArmPosition.Up);
+  // Start fingers in
+  ckArm.fireFinger(FingerPosition.In);
 }
 
-    /**
+  /**
    * This function is called periodically during operator control.
    */
   @Override
   public void teleopPeriodic() {
+
+    //vision
+    ckPixy.getCCC().getBlocks(true, Pixy2CCC.CCC_SIG1, 2);
 
    //Trigger Ramp Variable Speed both trigger
    //Right trigger is positive therefore in, left trigger is negative therefore reverse
@@ -162,44 +197,46 @@ public void teleopInit() {
    if (ckController.getBackButton() && ckController.getStartButton()){
     ckArm.fireArm(ArmPosition.Out); //make sure arm can go down (turn it)
     ckArm.fireArm(ArmPosition.Down); //make sure arm is out of the way
-    ckRamp.launchRamp(RampPosition.Down);
+    ckPlatform.launchPlatform(PlatformPosition.Down);
    }
 
     //Drive train             (forward, rotation, strafe)
     ckDrive.teleDriveCartesian(-ckController.getY(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kLeft));
-  }
 
+    //PixyCam sub-routine
+    if (ckController.getAButton()){
+      cameraHatchDetector();
+    }
+  }
+  
 
   @Override
   public void testInit() {
     System.out.println("---Test mode---");
-    ckPixy = Pixy2.createInstance(new io.github.pseudoresonance.pixy2api.links.SPILink());
-    ckPixy.init(RMap.PixySPIPort);
-
-    System.out.println(ckPixy.getVersionInfo());
-    
   }
+
   /**
    * This function is called periodically during test mode.
+   * 
    */
   @Override
   public void testPeriodic() {
     //System.out.print(ckPixy.getFPS());
     //System.out.print("--");
-    
-    ckPixy.getCCC().getBlocks(true, Pixy2CCC.CCC_SIG1, 2);
-    
+  
+  }
+
+  public void cameraHatchDetector() {
     //System.out.println(ckPixy.getCCC().getBlocks());
 
     ArrayList<Block> foundBlocks = ckPixy.getCCC().getBlocks();
-    if (foundBlocks.size() == 2)
-    {
+    if (foundBlocks.size() == 2) {
       System.out.println("2 blocks found.");
-
+    
       //get both blocks
       Block blockLeft = foundBlocks.get(0); //first block found
       Block blockRight = foundBlocks.get(1); //second block found
-      
+          
       //SWAP IF NEEDED
       if (blockLeft.getX() > blockRight.getX()) {
         Block blockTemp = blockLeft;
@@ -207,20 +244,19 @@ public void teleopInit() {
         blockRight = blockTemp;
         blockTemp = null;
       }
-
+    
       //get top x-coordinate of the block
       int xLeft = blockLeft.getX();
       int xRight = blockRight.getX();
-
       int blockXMid = (xLeft + xRight)/2; //midpoint x-coordinates
-
+    
       if ((blockXMid >= (RMap.cameraXMid - RMap.cameraXDeadZone)) && (blockXMid <= (RMap.cameraXMid + RMap.cameraXDeadZone))) {
         //your close enough (reduce glitch)
         System.out.println("Strafe 0"); //based on pixy cam mounting location, actually driving forward/reverse.
         ckDrive.teleDriveCartesian(0, 0, 0); 
       }
       else if (blockXMid >= (RMap.cameraXMid + RMap.cameraXDeadZone)) {
-        // move right
+       // move right
         System.out.println("Strafe right");
         ckDrive.teleDriveCartesian(RMap.cameraDriveReverse, 0, 0); //drive reverse
       }
@@ -228,12 +264,11 @@ public void teleopInit() {
         // move left
         System.out.println("Strafe left");
         ckDrive.teleDriveCartesian(RMap.cameraDriveForward, 0, 0); //drive forward
-
       }
-      
+          
       //width of 2 objects
       int blockWidth = (xRight - xLeft);
-
+    
       if (blockWidth <= RMap.cameraBlockWidth){
         //drive forward (blocks have a small width) 
         System.out.println("Drive forwards"); //based on pixy cam mounting location, actually driving forward/reverse.
@@ -244,11 +279,11 @@ public void teleopInit() {
         System.out.println("Drive slowly");
         ckDrive.teleDriveCartesian(0, 0, RMap.cameraDriveStrafeRight); //starfe right
       }
-      
+          
       //find bigger object (w * h)
       int areaBlockLeft = blockLeft.getWidth() * blockLeft.getHeight();
       int areaBlockRight = blockRight.getWidth() * blockRight.getHeight();
-
+    
       if (areaBlockLeft < areaBlockRight) {
         //turn left (drive left side faster than right side)
         System.out.println("Rotate left");
@@ -259,7 +294,6 @@ public void teleopInit() {
         System.out.println("Rotate right");
         ckDrive.teleDriveCartesian(0, RMap.cameraDriveTurnRight, 0); //rotate right
       }
-
       //drive mecanum: pass fwd, strafe, rotate
     }
     else if (foundBlocks.size() == 1)

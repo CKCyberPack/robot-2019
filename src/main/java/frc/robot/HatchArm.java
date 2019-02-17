@@ -24,7 +24,7 @@ public class HatchArm{
     }
     public HatchArm(){
         armPiston = new DoubleSolenoid(RMap.pcmArmUp, RMap.pcmArmDown);
-        armPistonTurn = new Solenoid(RMap.pcmArmTurnIn, RMap.pcmArmTurnOut);
+        armPistonTurn = new Solenoid(RMap.pcmArmTurn);
         armPistonFinger = new DoubleSolenoid(RMap.pcmArmFingersIn, RMap.pcmArmFingersOut);
     }
     public void fireArm(ArmPosition pos){
@@ -38,10 +38,10 @@ public class HatchArm{
                 currentArmPosition = pos;
                 break;
             case In:
-                armPistonTurn.set(true); //TODO: change later depending on piston's position for on/off.
+                armPistonTurn.set(false); //TODO: change later depending on piston's position for on/off.
                 break;
             case Out:
-                armPistonTurn.set(false);
+                armPistonTurn.set(true);
                 break;
         }
     }
