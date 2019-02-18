@@ -1,7 +1,9 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX; 
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard; 
 
 public class BallShooter {
     VictorSPX conveyVictorSPX;
@@ -12,6 +14,7 @@ public class BallShooter {
 
     public void setSpeed(double speed) {
         conveyVictorSPX.set(ControlMode.PercentOutput, speed);
+        //SmartDashboard.putNumber("LoadingSpeed",speed);
     }
 
     public void intakeBall() {

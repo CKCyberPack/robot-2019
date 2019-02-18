@@ -41,7 +41,7 @@ public class HatchArm {
             SmartDashboard.putBoolean("Arm DOWN", true);
             break;
         case In:
-            armPistonTurn.set(false); // TODO: Use pcmForward or Reverse
+            armPistonTurn.set(false);
             currentArmTurnPosition = pos;
             SmartDashboard.putBoolean("Arm OUT", false);
             break;

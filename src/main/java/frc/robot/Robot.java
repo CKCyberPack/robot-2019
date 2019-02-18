@@ -8,6 +8,8 @@
 package frc.robot;
 
 import java.util.ArrayList;
+
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -20,7 +22,7 @@ import io.github.pseudoresonance.pixy2api.Pixy2CCC;
 import io.github.pseudoresonance.pixy2api.Pixy2CCC.Block;
 import frc.robot.HatchArm.FingerPosition;
 import frc.robot.Platform.PlatformPosition;
-import edu.wpi.first.wpilibj.*;
+import edu.wpi.cscore.UsbCamera;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -44,7 +46,7 @@ public class Robot extends TimedRobot {
   private BallShooter ckBall;
   private HatchArm ckArm;
   private Platform ckPlatform;
-  private Compressor ckCompressor;
+  private UsbCamera ckCamera;
 
   private long startTimer;
   private long currentTimer;
@@ -55,6 +57,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    System.out.println("---Robot Init---");
     autoChooser.setDefaultOption("Drive Forward", auto_DriveForward);
     autoChooser.addOption("Do Nothing", auto_DoNothing);
     SmartDashboard.putData("Auto choices", autoChooser);
@@ -65,12 +68,15 @@ public class Robot extends TimedRobot {
     ckBall = new BallShooter();
     ckArm = new HatchArm();
     ckPlatform = new Platform();
-    ckCompressor = new Compressor();
+
+    ckCamera = CameraServer.getInstance().startAutomaticCapture();
+    ckCamera.setResolution(160, 120);
+    ckCamera.setFPS(24);
 
     // Vision
     ckPixy = Pixy2.createInstance(new io.github.pseudoresonance.pixy2api.links.SPILink());
     ckPixy.init(RMap.PixySPIPort);
-    // System.out.println(ckPixy.getVersionInfo());
+    
 
     // Setup ARM Starting Position
     ckArm.startingPosition();
@@ -125,7 +131,7 @@ public class Robot extends TimedRobot {
     long autoTimer = currentTimer - startTimer;
 
     if (autoTimer < 3000) {
-      ckDrive.teleDriveCartesian(0.5, 0, 0); // drive straight forward at 50%
+      ckDrive.driveStraight(0.2);; // drive straight forward at 50%
     } else {
       ckDrive.teleDriveCartesian(0, 0, 0);
     }
@@ -156,7 +162,7 @@ public class Robot extends TimedRobot {
     // Trigger Ramp Variable Speed both trigger
     // Right trigger is positive therefore in, left trigger is negative therefore
     // reverse
-    ckBall.setSpeed(ckController.getTriggerAxis(Hand.kLeft) - ckController.getTriggerAxis(Hand.kRight));
+    ckBall.setSpeed(ckController.getTriggerAxis(Hand.kRight) - ckController.getTriggerAxis(Hand.kLeft));
 
     // Right Bumper Toggle Arm up/down and rumble down
     if (ckController.getBumperPressed(Hand.kRight)) {
@@ -171,7 +177,7 @@ public class Robot extends TimedRobot {
     }
 
     // X turn arm
-    if (ckController.getXButtonPressed()) {
+    if (ckController.getBumperPressed(Hand.kLeft)) {
       ckArm.toggleArmTurn();
     }
 
@@ -182,8 +188,7 @@ public class Robot extends TimedRobot {
     }
 
     // Drive train (forward, rotation, strafe)
-    ckDrive.teleDriveCartesian(-ckController.getY(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kRight),
-        ckController.getX(GenericHID.Hand.kLeft));
+    ckDrive.teleDriveCartesian(-ckController.getY(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kRight),ckController.getX(GenericHID.Hand.kLeft));
 
     // PixyCam sub-routine HOLD A BUTTON
     if (ckController.getAButton()) {

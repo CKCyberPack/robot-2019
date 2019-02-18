@@ -2,6 +2,8 @@ package frc.robot;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
+import com.revrobotics.CANSparkMax.IdleMode;
+
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
@@ -23,6 +25,11 @@ public class DriveTrain {
     rightFrontMotor = new CANSparkMax(RMap.CANRightFrontMotor, CANSparkMaxLowLevel.MotorType.kBrushless);
     leftBackMotor = new CANSparkMax(RMap.CANLeftBackMotor, CANSparkMaxLowLevel.MotorType.kBrushless);
     rightBackMotor = new CANSparkMax(RMap.CANRightBackMotor, CANSparkMaxLowLevel.MotorType.kBrushless);
+
+    leftFrontMotor.setIdleMode(IdleMode.kBrake);
+    rightFrontMotor.setIdleMode(IdleMode.kBrake);
+    leftBackMotor.setIdleMode(IdleMode.kBrake);
+    rightBackMotor.setIdleMode(IdleMode.kBrake);
 
     ckDrive = new MecanumDrive(leftFrontMotor, leftBackMotor, rightFrontMotor, rightBackMotor);
 
@@ -69,14 +76,14 @@ public class DriveTrain {
 
   public double applyDappen(double proposedValue, double currentSpeed) {
     // Apply Dapening
-    if (currentSpeed > 0.0) {
+    if (currentSpeed >= 0.0) {
       // Going Forward
       if (proposedValue > currentSpeed) {
         // Accelerating Forward
         proposedValue = Math.min(proposedValue, currentSpeed + RMap.maxSpeedIncrease);
       } else {
         // Decelerating Forward
-        proposedValue = Math.min(proposedValue, currentSpeed - RMap.maxSpeedDecrease);
+        proposedValue = Math.max(proposedValue, currentSpeed - RMap.maxSpeedDecrease);
       }
     } else {
       // Going Backwards
@@ -85,7 +92,7 @@ public class DriveTrain {
         proposedValue = Math.max(proposedValue, currentSpeed - RMap.maxSpeedIncrease);
       } else {
         // Decelerating Backwards
-        proposedValue = Math.max(proposedValue, currentSpeed + RMap.maxSpeedDecrease);
+        proposedValue = Math.min(proposedValue, currentSpeed + RMap.maxSpeedDecrease);
       }
     }
 
