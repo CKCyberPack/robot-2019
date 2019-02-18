@@ -39,7 +39,7 @@ public class RMap {
     static int pcmArmUp = 3; 
     static int pcmArmDown = 2;
     static int pcmArmTurn = 7;
-    //static int pcmArmTurnOut = 7;
+    static int pcmVision = 6;
     static int pcmArmFingersIn = 1;
     static int pcmArmFingersOut = 4;
 

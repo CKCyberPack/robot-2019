@@ -13,6 +13,7 @@ public class HatchArm {
     private DoubleSolenoid armPistonFinger;
     private ArmPosition currentArmPosition;
     private ArmPosition currentArmTurnPosition;
+    private Solenoid visionLED;
 
     public enum ArmPosition {
         Up, Down, In, Out
@@ -26,6 +27,7 @@ public class HatchArm {
         armPiston = new DoubleSolenoid(RMap.pcmArmUp, RMap.pcmArmDown);
         armPistonTurn = new Solenoid(RMap.pcmArmTurn);
         armPistonFinger = new DoubleSolenoid(RMap.pcmArmFingersIn, RMap.pcmArmFingersOut);
+        visionLED = new Solenoid(RMap.pcmVision);
     }
 
     private void fireArm(ArmPosition pos) {
@@ -52,6 +54,14 @@ public class HatchArm {
             break;
         }
     }
+
+    public void ledOn(){
+        visionLED.set(true);
+    }
+    public void ledOff(){
+        visionLED.set(false);
+    }
+
 
     public void fireFinger(FingerPosition pos) {
         switch (pos) {

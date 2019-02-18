@@ -17,9 +17,9 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import io.github.pseudoresonance.pixy2api.Pixy2;
-import io.github.pseudoresonance.pixy2api.Pixy2CCC;
-import io.github.pseudoresonance.pixy2api.Pixy2CCC.Block;
+// import io.github.pseudoresonance.pixy2api.Pixy2;
+// import io.github.pseudoresonance.pixy2api.Pixy2CCC;
+// import io.github.pseudoresonance.pixy2api.Pixy2CCC.Block;
 import frc.robot.HatchArm.FingerPosition;
 import frc.robot.Platform.PlatformPosition;
 import edu.wpi.cscore.UsbCamera;
@@ -37,7 +37,7 @@ public class Robot extends TimedRobot {
   private String auto_Selected;
   private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
-  private Pixy2 ckPixy;
+  //private Pixy2 ckPixy;
 
   // robot components
   private XboxController ckController;
@@ -71,11 +71,11 @@ public class Robot extends TimedRobot {
 
     ckCamera = CameraServer.getInstance().startAutomaticCapture();
     ckCamera.setResolution(160, 120);
-    ckCamera.setFPS(24);
+    ckCamera.setFPS(15);
 
     // Vision
-    ckPixy = Pixy2.createInstance(new io.github.pseudoresonance.pixy2api.links.SPILink());
-    ckPixy.init(RMap.PixySPIPort);
+    // ckPixy = Pixy2.createInstance(new io.github.pseudoresonance.pixy2api.links.SPILink());
+    // ckPixy.init(RMap.PixySPIPort);
     
 
     // Setup ARM Starting Position
@@ -109,17 +109,19 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    currentTimer = System.currentTimeMillis();
+    // currentTimer = System.currentTimeMillis();
 
-    switch (auto_Selected) {
-    case auto_DoNothing:
-      // Do NOTHING!
-      break;
-    case auto_DriveForward:
-    default:
-      autoDriveForward();
-      break;
-    }
+    // switch (auto_Selected) {
+    // case auto_DoNothing:
+    //   // Do NOTHING!
+    //   break;
+    // case auto_DriveForward:
+    // default:
+    //   autoDriveForward();
+    //   break;
+    // }
+
+    teleopPeriodic();
 
   }
 
@@ -157,7 +159,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
 
     // vision
-    ckPixy.getCCC().getBlocks(true, Pixy2CCC.CCC_SIG1, 2);
+    //ckPixy.getCCC().getBlocks(true, Pixy2CCC.CCC_SIG1, 2);
 
     // Trigger Ramp Variable Speed both trigger
     // Right trigger is positive therefore in, left trigger is negative therefore
@@ -194,95 +196,101 @@ public class Robot extends TimedRobot {
     if (ckController.getAButton()) {
       // cameraHatchDetector();
     }
+
+    if (ckController.getYButton()){
+      ckArm.ledOn();
+    }else{
+      ckArm.ledOff();
+    }
   }
 
   /*******************************************
    *** CAMERA STUFF ***
    *******************************************/
-  public void cameraHatchDetector() {
-    // System.out.println(ckPixy.getCCC().getBlocks());
+  // public void cameraHatchDetector() {
+  //   // System.out.println(ckPixy.getCCC().getBlocks());
 
-    double driveStrafe = 0;
-    double driveForward = 0;
-    double driveRotate = 0;
+  //   double driveStrafe = 0;
+  //   double driveForward = 0;
+  //   double driveRotate = 0;
 
 
-    ArrayList<Block> foundBlocks = ckPixy.getCCC().getBlocks();
-    if (foundBlocks.size() == 2) {
-      System.out.println("2 blocks found.");
+  //   ArrayList<Block> foundBlocks = ckPixy.getCCC().getBlocks();
+  //   if (foundBlocks.size() == 2) {
+  //     System.out.println("2 blocks found.");
 
-      // get both blocks
-      Block blockLeft = foundBlocks.get(0); // first block found
-      Block blockRight = foundBlocks.get(1); // second block found
+  //     // get both blocks
+  //     Block blockLeft = foundBlocks.get(0); // first block found
+  //     Block blockRight = foundBlocks.get(1); // second block found
 
-      // SWAP IF NEEDED
-      if (blockLeft.getX() > blockRight.getX()) {
-        Block blockTemp = blockLeft;
-        blockLeft = blockRight;
-        blockRight = blockTemp;
-        blockTemp = null;
-      }
+  //     // SWAP IF NEEDED
+  //     if (blockLeft.getX() > blockRight.getX()) {
+  //       Block blockTemp = blockLeft;
+  //       blockLeft = blockRight;
+  //       blockRight = blockTemp;
+  //       blockTemp = null;
+  //     }
 
-      // get top x-coordinate of the block
-      int xLeft = blockLeft.getX();
-      int xRight = blockRight.getX();
-      int blockXMid = (xLeft + xRight) / 2; // midpoint x-coordinates
+  //     // get top x-coordinate of the block
+  //     int xLeft = blockLeft.getX();
+  //     int xRight = blockRight.getX();
+  //     int blockXMid = (xLeft + xRight) / 2; // midpoint x-coordinates
 
       
-      if ((blockXMid >= (RMap.cameraXMid - RMap.cameraXDeadZone))
-          && (blockXMid <= (RMap.cameraXMid + RMap.cameraXDeadZone))) {
-        // your close enough (reduce glitch)
-        System.out.println("Strafe 0"); // based on pixy cam mounting location, actually driving forward/reverse.
-        driveStrafe = 0;
-      } else if (blockXMid >= (RMap.cameraXMid + RMap.cameraXDeadZone)) {
-        // move right
-        System.out.println("Strafe right");
-        driveStrafe = RMap.cameraDriveStrafeRight;
-      } else if (blockXMid <= (RMap.cameraXMid - RMap.cameraXDeadZone)) {
-        // move left
-        System.out.println("Strafe left");
-        driveStrafe = RMap.cameraDriveStrafeLeft;
-      }
+  //     if ((blockXMid >= (RMap.cameraXMid - RMap.cameraXDeadZone))
+  //         && (blockXMid <= (RMap.cameraXMid + RMap.cameraXDeadZone))) {
+  //       // your close enough (reduce glitch)
+  //       System.out.println("Strafe 0"); // based on pixy cam mounting location, actually driving forward/reverse.
+  //       driveStrafe = 0;
+  //     } else if (blockXMid >= (RMap.cameraXMid + RMap.cameraXDeadZone)) {
+  //       // move right
+  //       System.out.println("Strafe right");
+  //       driveStrafe = RMap.cameraDriveStrafeRight;
+  //     } else if (blockXMid <= (RMap.cameraXMid - RMap.cameraXDeadZone)) {
+  //       // move left
+  //       System.out.println("Strafe left");
+  //       driveStrafe = RMap.cameraDriveStrafeLeft;
+  //     }
 
-      // width of 2 objects
-      int blockWidth = (xRight - xLeft);
+  //     // width of 2 objects
+  //     int blockWidth = (xRight - xLeft);
 
-      if (blockWidth <= RMap.cameraBlockWidth) {
-        // drive forward (blocks have a small width)
-        System.out.println("Drive forwards"); // based on pixy cam mounting location, actually driving forward/reverse.
-        driveForward = RMap.cameraDriveFast;
-      } else if (blockWidth >= RMap.cameraBlockWidth) {
-        // you are getting very close now
-        System.out.println("Drive slowly");
-        driveForward = RMap.cameraDriveSlow;
-      }
+  //     if (blockWidth <= RMap.cameraBlockWidth) {
+  //       // drive forward (blocks have a small width)
+  //       System.out.println("Drive forwards"); // based on pixy cam mounting location, actually driving forward/reverse.
+  //       driveForward = RMap.cameraDriveFast;
+  //     } else if (blockWidth >= RMap.cameraBlockWidth) {
+  //       // you are getting very close now
+  //       System.out.println("Drive slowly");
+  //       driveForward = RMap.cameraDriveSlow;
+  //     }
 
-      // find bigger object (w * h)
-      int areaBlockLeft = blockLeft.getWidth() * blockLeft.getHeight();
-      int areaBlockRight = blockRight.getWidth() * blockRight.getHeight();
+  //     // find bigger object (w * h)
+  //     int areaBlockLeft = blockLeft.getWidth() * blockLeft.getHeight();
+  //     int areaBlockRight = blockRight.getWidth() * blockRight.getHeight();
 
-      if (areaBlockLeft < areaBlockRight) {
-        // turn left (drive left side faster than right side)
-        System.out.println("Rotate left");
-        driveRotate = RMap.cameraDriveTurnLeft;
-      }
-      if (areaBlockRight < areaBlockLeft) {
-        // turn right (drive right side faster than left side)
-        System.out.println("Rotate right");
-        driveRotate = RMap.cameraDriveTurnRight;
-      }
-      // drive mecanum: pass fwd, strafe, rotate
-    } else if (foundBlocks.size() == 1) {
-      // System.out.println("1 block found.");
-      Block block1 = foundBlocks.get(0);
-      System.out.println("X:" + block1.getX() + "Y:" + block1.getY());
-    } else {
-      System.out.println("Not 1 or 2 blocks.");
-    }
+  //     if (areaBlockLeft < areaBlockRight) {
+  //       // turn left (drive left side faster than right side)
+  //       System.out.println("Rotate left");
+  //       driveRotate = RMap.cameraDriveTurnLeft;
+  //     }
+  //     if (areaBlockRight < areaBlockLeft) {
+  //       // turn right (drive right side faster than left side)
+  //       System.out.println("Rotate right");
+  //       driveRotate = RMap.cameraDriveTurnRight;
+  //     }
+  //     // drive mecanum: pass fwd, strafe, rotate
+  //   } else if (foundBlocks.size() == 1) {
+  //     // System.out.println("1 block found.");
+  //     Block block1 = foundBlocks.get(0);
+  //     System.out.println("X:" + block1.getX() + "Y:" + block1.getY());
+  //   } else {
+  //     System.out.println("Not 1 or 2 blocks.");
+  //   }
 
-    //Drive the ROBOT
-    ckDrive.teleDriveCartesian(driveForward, driveRotate, driveStrafe);
-  }
+  //   //Drive the ROBOT
+  //   ckDrive.teleDriveCartesian(driveForward, driveRotate, driveStrafe);
+  // }
 
   @Override
   public void testInit() {

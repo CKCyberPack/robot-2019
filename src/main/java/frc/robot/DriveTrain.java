@@ -40,7 +40,6 @@ public class DriveTrain {
   }
 
   public void teleDriveCartesian(double forward, double rotation, double strafe) {
-
     speedF = applyDappen(applyDeadBand(forward), speedF);
     speedR = applyDappen(applyDeadBand(rotation), speedR);
     speedS = applyDappen(applyDeadBand(strafe), speedS);
