@@ -14,6 +14,8 @@ public class RMap {
     static int CANRightBackMotor = 10;
     static double driveTrainDeadzone = 0.05;
     static double gyroStraightKp = 0.065;
+    static double maxSpeedIncrease = 0.001;
+    static double maxSpeedDecrease = 0.01;
 
     //Vision
     static int cameraXMid = 210; //midpoint of camera 
