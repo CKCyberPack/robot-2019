@@ -158,6 +158,16 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
+    /*
+    Current Control Layout for Robot 2019
+    
+    Fuction Name - Button/Button Combination
+    Toggle Arm - Right Hand Bumper
+    Release Fingers - Hold B Button
+    Toggle Arm Turn - Left Bumper
+    
+    */
+
     // vision
     //ckPixy.getCCC().getBlocks(true, Pixy2CCC.CCC_SIG1, 2);
 
