@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 
 public class DriveTrain {
 
@@ -12,6 +13,7 @@ public class DriveTrain {
     CANSparkMax leftBackMotor;
     CANSparkMax rightBackMotor;
     MecanumDrive ckDrive;
+    ADXRS450_Gyro ckGyro;
 
     public DriveTrain() {
         leftFrontMotor = new CANSparkMax(RMap.CANLeftFrontMotor, CANSparkMaxLowLevel.MotorType.kBrushless);
@@ -20,6 +22,10 @@ public class DriveTrain {
         rightBackMotor = new CANSparkMax(RMap.CANRightBackMotor, CANSparkMaxLowLevel.MotorType.kBrushless);
 
         ckDrive = new MecanumDrive(leftFrontMotor, leftBackMotor, rightFrontMotor, rightBackMotor);
+
+        //Create the Gyro
+        ckGyro = new ADXRS450_Gyro();
+
         SmartDashboard.putData("Drive Train", ckDrive);
     }
 
@@ -31,6 +37,17 @@ public class DriveTrain {
         // SmartDashboard.putNumber("Right Back", rightBackMotor.get());
     }
 
+
+    public void resetGyro(){
+      ckGyro.reset();
+    }
+
+
+    public void driveStraight(double forward){
+      //TODO - Do a try catch here in case gyro is broken, otherwise return 0 for turn amount
+      double turnAmount = ckGyro.getAngle() * RMap.gyroStraightKp;
+      ckDrive.driveCartesian(0, forward, turnAmount);
+    }
 
     //Apply a RMap.driveTrainDeadzone because wpilib doensn't like rotation RMap.driveTrainDeadzone
   private double applyDeadBand (double value) {
