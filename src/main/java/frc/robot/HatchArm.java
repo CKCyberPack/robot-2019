@@ -8,12 +8,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class HatchArm {
 
+    /* 
+    *ALL "Gripper" CODE IS BACK-UP FUNCTION FOR THE HATCH
+    */
+
     private DoubleSolenoid armPiston;
     private Solenoid armPistonTurn;
     private DoubleSolenoid armPistonFinger;
     private ArmPosition currentArmPosition;
     private ArmPosition currentArmTurnPosition;
+    //private GripperPosition currentArmGripperPosition;
     private Solenoid visionLED;
+    //private Solenoid armGripper;
+
 
     public enum ArmPosition {
         Up, Down, In, Out
@@ -23,11 +30,16 @@ public class HatchArm {
         In, Out
     }
 
+    // public enum GripperPosition {
+    //     Down, Up
+    // }
+
     public HatchArm() {
         armPiston = new DoubleSolenoid(RMap.pcmArmUp, RMap.pcmArmDown);
         armPistonTurn = new Solenoid(RMap.pcmArmTurn);
         armPistonFinger = new DoubleSolenoid(RMap.pcmArmFingersIn, RMap.pcmArmFingersOut);
         visionLED = new Solenoid(RMap.pcmVision);
+        //armGripper = new Solenoid (RMap.pcmArmGripper);
     }
 
     private void fireArm(ArmPosition pos) {
@@ -62,7 +74,6 @@ public class HatchArm {
         visionLED.set(false);
     }
 
-
     public void fireFinger(FingerPosition pos) {
         switch (pos) {
         case In:
@@ -73,6 +84,18 @@ public class HatchArm {
             break;
         }
     }
+
+    //BACK-UP Hatch Arm Code
+    // public void fireGripper(GripperPosition pos) {
+    //     switch (pos) {
+    //         case Down:
+    //             armGripper.set(false);
+    //             break;
+    //         case Up:
+    //             armGripper.set(true);
+    //             break;
+    //     }
+    // }
 
     public void toggleArm(XboxController myController) {
         // Do nothing if Arm is Inside the robot
@@ -103,6 +126,20 @@ public class HatchArm {
             fireArm(ArmPosition.Out);
         }
     }
+
+    //BACK-UP Hatch Arm code
+    // public void toggleArmGripper() {
+    //     long startTimer = System.currentTimeMillis();
+    //     if (currentArmGripperPosition == GripperPosition.Down) {
+    //         fireGripper(GripperPosition.Up);
+    //     } else {
+    //         fireGripper(GripperPosition.Down);
+    //         fireFinger(FingerPosition.Out);
+    //         if (startTimer == 3000) {
+    //             fireFinger(FingerPosition.In);
+    //         }
+    //     }
+    // }
 
     public void firePlatformPosition() {
         fireArm(ArmPosition.Out); // make sure arm can go down (turn it)

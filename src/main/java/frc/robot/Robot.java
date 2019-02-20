@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import io.github.pseudoresonance.pixy2api.Pixy2CCC;
 // import io.github.pseudoresonance.pixy2api.Pixy2CCC.Block;
 import frc.robot.HatchArm.FingerPosition;
+//import frc.robot.HatchArm.GripperPosition;
 import frc.robot.Platform.PlatformPosition;
 import edu.wpi.cscore.UsbCamera;
 
@@ -188,7 +189,7 @@ public class Robot extends TimedRobot {
       ckArm.fireFinger(FingerPosition.In);
     }
 
-    // X turn arm
+    // Left bumper turn arm
     if (ckController.getBumperPressed(Hand.kLeft)) {
       ckArm.toggleArmTurn();
     }
@@ -205,6 +206,10 @@ public class Robot extends TimedRobot {
     // PixyCam sub-routine HOLD A BUTTON
     if (ckController.getAButton()) {
       // cameraHatchDetector();
+    }
+
+    if (ckController.getStickButtonPressed(Hand.kLeft)) {
+      //TODO: Use toggle on the stick to change between camera to intake bal (front) and shoot ball (back)
     }
 
     if (ckController.getYButton()){
