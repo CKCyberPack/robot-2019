@@ -42,7 +42,6 @@ public class RMap {
     static int pcmVision = 6;
     static int pcmArmFingersIn = 1;
     static int pcmArmFingersOut = 4;
-    static int pcmArmGripper = 6;
 
     //Platform
     static int pcmPlatformUp = 0;

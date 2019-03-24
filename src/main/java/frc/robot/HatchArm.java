@@ -17,7 +17,7 @@ public class HatchArm {
     private DoubleSolenoid armPistonFinger;
     private ArmPosition currentArmPosition;
     private ArmPosition currentArmTurnPosition;
-    //private GripperPosition currentArmGripperPosition;
+    private FingerPosition currentFingerPosition;
     private Solenoid visionLED;
     //private Solenoid armGripper;
 
@@ -27,17 +27,14 @@ public class HatchArm {
     }
 
     public enum FingerPosition {
-        In, Out
+        Up, Down
     }
 
-    // public enum GripperPosition {
-    //     Down, Up
-    // }
 
     public HatchArm() {
         armPiston = new DoubleSolenoid(RMap.pcmArmUp, RMap.pcmArmDown);
         armPistonTurn = new Solenoid(RMap.pcmArmTurn);
-        armPistonFinger = new DoubleSolenoid(RMap.pcmArmFingersIn, RMap.pcmArmFingersOut);
+        armPistonFinger = new DoubleSolenoid(RMap.pcmArmFingersOut, RMap.pcmArmFingersIn);
         visionLED = new Solenoid(RMap.pcmVision);
         //armGripper = new Solenoid (RMap.pcmArmGripper);
     }
@@ -76,26 +73,26 @@ public class HatchArm {
 
     public void fireFinger(FingerPosition pos) {
         switch (pos) {
-        case In:
+        case Up:
             armPistonFinger.set(RMap.pcmForward);
+            currentFingerPosition = pos;
+            SmartDashboard.putBoolean("Fingers UP", true);
             break;
-        case Out:
+        case Down:
             armPistonFinger.set(RMap.pcmReverse);
+            currentFingerPosition = pos;
+            SmartDashboard.putBoolean("Fingers UP", false);
             break;
         }
     }
 
-    //BACK-UP Hatch Arm Code
-    // public void fireGripper(GripperPosition pos) {
-    //     switch (pos) {
-    //         case Down:
-    //             armGripper.set(false);
-    //             break;
-    //         case Up:
-    //             armGripper.set(true);
-    //             break;
-    //     }
-    // }
+    public void toggleFireFinger() {
+        if (currentFingerPosition == FingerPosition.Up) {
+            fireFinger(FingerPosition.Down);
+        } else {
+            fireFinger(FingerPosition.Up);
+        }
+    }
 
     public void toggleArm(XboxController myController) {
         // Do nothing if Arm is Inside the robot
@@ -127,20 +124,6 @@ public class HatchArm {
         }
     }
 
-    //BACK-UP Hatch Arm code
-    // public void toggleArmGripper() {
-    //     long startTimer = System.currentTimeMillis();
-    //     if (currentArmGripperPosition == GripperPosition.Down) {
-    //         fireGripper(GripperPosition.Up);
-    //     } else {
-    //         fireGripper(GripperPosition.Down);
-    //         fireFinger(FingerPosition.Out);
-    //         if (startTimer == 3000) {
-    //             fireFinger(FingerPosition.In);
-    //         }
-    //     }
-    // }
-
     public void firePlatformPosition() {
         fireArm(ArmPosition.Out); // make sure arm can go down (turn it)
         fireArm(ArmPosition.Down); // make sure arm is out of the way
@@ -151,8 +134,10 @@ public class HatchArm {
         fireArm(ArmPosition.In);
         // Start Arm UP
         fireArm(ArmPosition.Up);
-        // Start fingers in
-        fireFinger(FingerPosition.In);
+        // Start fingers up/ GAME PIECE ON THE ROBOT
+        fireFinger(FingerPosition.Up);
+        // OR start fingers down/ GAME PIECE NOT ON THE ROBOT
+        //fireFinger(FingerPosition.Down);
     }
 
 }

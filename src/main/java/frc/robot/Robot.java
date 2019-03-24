@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import io.github.pseudoresonance.pixy2api.Pixy2CCC;
 // import io.github.pseudoresonance.pixy2api.Pixy2CCC.Block;
 import frc.robot.HatchArm.FingerPosition;
-//import frc.robot.HatchArm.GripperPosition;
 import frc.robot.Platform.PlatformPosition;
 import edu.wpi.cscore.UsbCamera;
 
@@ -47,7 +46,8 @@ public class Robot extends TimedRobot {
   private BallShooter ckBall;
   private HatchArm ckArm;
   private Platform ckPlatform;
-  private UsbCamera ckCamera;
+  private UsbCamera ckCameraFront;
+  private UsbCamera ckCameraRear;
 
   private long startTimer;
   private long currentTimer;
@@ -70,9 +70,13 @@ public class Robot extends TimedRobot {
     ckArm = new HatchArm();
     ckPlatform = new Platform();
 
-    ckCamera = CameraServer.getInstance().startAutomaticCapture();
-    ckCamera.setResolution(160, 120);
-    ckCamera.setFPS(15);
+    ckCameraFront = CameraServer.getInstance().startAutomaticCapture();
+    ckCameraFront.setResolution(160, 120);
+    ckCameraFront.setFPS(15);
+
+    ckCameraRear = CameraServer.getInstance().startAutomaticCapture();
+    ckCameraRear.setResolution(160, 120);
+    ckCameraRear.setFPS(15);
 
     // Vision
     // ckPixy = Pixy2.createInstance(new io.github.pseudoresonance.pixy2api.links.SPILink());
@@ -166,6 +170,9 @@ public class Robot extends TimedRobot {
     Toggle Arm - Right Hand Bumper
     Release Fingers - Hold B Button
     Toggle Arm Turn - Left Bumper
+    Ball In - Right Trigger
+    Ball Out - Left Trigger
+    End Game - Start & Select
     
     */
 
@@ -183,11 +190,16 @@ public class Robot extends TimedRobot {
     }
 
     // B Hold Fingers Out
-    if (ckController.getBButton()) {
-      ckArm.fireFinger(FingerPosition.Out);
-    } else {
-      ckArm.fireFinger(FingerPosition.In);
-    }
+    if (ckController.getBButtonPressed()) {
+      ckArm.toggleFireFinger();
+    } 
+
+    // // B Hold Fingers Out
+    // if (ckController.getBButton()) {
+    //   ckArm.fireFinger(FingerPosition.Down);
+    // } else {
+    //   ckArm.fireFinger(FingerPosition.Up);
+    // }
 
     // Left bumper turn arm
     if (ckController.getBumperPressed(Hand.kLeft)) {
@@ -203,14 +215,14 @@ public class Robot extends TimedRobot {
     // Drive train (forward, rotation, strafe)
     ckDrive.teleDriveCartesian(-ckController.getY(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kRight),ckController.getX(GenericHID.Hand.kLeft));
 
-    // PixyCam sub-routine HOLD A BUTTON
-    if (ckController.getAButton()) {
-      // cameraHatchDetector();
-    }
+    // // PixyCam sub-routine HOLD A BUTTON
+    // if (ckController.getAButton()) {
+    //   // cameraHatchDetector();
+    // }
 
-    if (ckController.getStickButtonPressed(Hand.kLeft)) {
-      //TODO: Use toggle on the stick to change between camera to intake bal (front) and shoot ball (back)
-    }
+    // if (ckController.getStickButtonPressed(Hand.kLeft)) {
+    //   //TODO: Use toggle on the stick to change between camera to intake bal (front) and shoot ball (back)
+    // }
 
     if (ckController.getYButton()){
       ckArm.ledOn();
