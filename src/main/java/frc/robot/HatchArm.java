@@ -76,12 +76,12 @@ public class HatchArm {
         case Up:
             armPistonFinger.set(RMap.pcmForward);
             currentFingerPosition = pos;
-            SmartDashboard.putBoolean("Fingers UP", true);
+            SmartDashboard.putBoolean("Fingers UP", false);
             break;
         case Down:
             armPistonFinger.set(RMap.pcmReverse);
             currentFingerPosition = pos;
-            SmartDashboard.putBoolean("Fingers UP", false);
+            SmartDashboard.putBoolean("Fingers UP", true);
             break;
         }
     }

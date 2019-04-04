@@ -64,13 +64,27 @@ public class DriveTrain {
   private double applyDeadBand(double value) {
     if (Math.abs(value) > RMap.driveTrainDeadzone) {
       if (value > 0.0) {
-        return (value - RMap.driveTrainDeadzone) / (1.0 - RMap.driveTrainDeadzone);
+        if (value >= RMap.driveTrainMax) {
+          //Your at max speed, keep it there
+          return RMap.driveTrainMax;
+        }else{
+          //Otherwise scale up 
+          return (value - RMap.driveTrainDeadzone) / (RMap.driveTrainMax - RMap.driveTrainDeadzone);
+        }
       } else {
-        return (value + RMap.driveTrainDeadzone) / (1.0 - RMap.driveTrainDeadzone);
+        if (value < -RMap.driveTrainMax) {
+          //Your at minimum speed, keep it there
+          return -RMap.driveTrainMax;
+        }
+        else{
+          //Otherwise scale down
+          return (value + RMap.driveTrainDeadzone) / (RMap.driveTrainMax - RMap.driveTrainDeadzone);
+        }
       }
     } else {
       return 0.0;
     }
+
   }
 
   public double applyDappen(double proposedValue, double currentSpeed) {
