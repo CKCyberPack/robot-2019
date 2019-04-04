@@ -7,8 +7,6 @@
 
 package frc.robot;
 
-import java.util.ArrayList;
-
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
@@ -34,7 +32,7 @@ import edu.wpi.cscore.UsbCamera;
 public class Robot extends TimedRobot {
   private static final String auto_DriveForward = "DriveForward";
   private static final String auto_DoNothing = "NOTHING";
-  private String auto_Selected;
+  //private String auto_Selected;
   private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
   //private Pixy2 ckPixy;
@@ -46,12 +44,11 @@ public class Robot extends TimedRobot {
   private BallShooter ckBall;
   private HatchArm ckArm;
   private Platform ckPlatform;
-  private UsbCamera ckCameraFront;
-  private UsbCamera ckCameraRear;
+  private UsbCamera ckCameraHatch;
+  private UsbCamera ckCameraBall;
 
   private long startTimer;
   private long currentTimer;
-
   /**
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
@@ -70,13 +67,13 @@ public class Robot extends TimedRobot {
     ckArm = new HatchArm();
     ckPlatform = new Platform();
 
-    ckCameraFront = CameraServer.getInstance().startAutomaticCapture();
-    ckCameraFront.setResolution(160, 120);
-    ckCameraFront.setFPS(15);
+    ckCameraHatch = CameraServer.getInstance().startAutomaticCapture();
+    ckCameraHatch.setResolution(160, 120);
+    ckCameraHatch.setFPS(15);
 
-    ckCameraRear = CameraServer.getInstance().startAutomaticCapture();
-    ckCameraRear.setResolution(160, 120);
-    ckCameraRear.setFPS(15);
+    ckCameraBall = CameraServer.getInstance().startAutomaticCapture();
+    ckCameraBall.setResolution(160, 120);
+    ckCameraBall.setFPS(15);
 
     // Vision
     // ckPixy = Pixy2.createInstance(new io.github.pseudoresonance.pixy2api.links.SPILink());
@@ -104,7 +101,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     System.out.println("---Auto mode---");
-    auto_Selected = autoChooser.getSelected();
+    //auto_Selected = autoChooser.getSelected();
 
     startTimer = System.currentTimeMillis();
   }
@@ -213,7 +210,8 @@ public class Robot extends TimedRobot {
     }
 
     // Drive train (forward, rotation, strafe)
-    ckDrive.teleDriveCartesian(-ckController.getY(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kRight),ckController.getX(GenericHID.Hand.kLeft));
+    ckDrive.teleDriveCartesian(-ckController.getY(GenericHID.Hand.kRight),ckController.getX(GenericHID.Hand.kRight), ckController.getX(GenericHID.Hand.kLeft));
+
 
     // // PixyCam sub-routine HOLD A BUTTON
     // if (ckController.getAButton()) {
