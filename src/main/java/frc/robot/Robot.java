@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import io.github.pseudoresonance.pixy2api.Pixy2;
 // import io.github.pseudoresonance.pixy2api.Pixy2CCC;
 // import io.github.pseudoresonance.pixy2api.Pixy2CCC.Block;
-import frc.robot.HatchArm.FingerPosition;
+//import frc.robot.HatchArm.FingerPosition;
 import frc.robot.Platform.PlatformPosition;
 import edu.wpi.cscore.UsbCamera;
 
